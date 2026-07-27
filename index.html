@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Anime Guess Master</title>
+  <title>Guess Master - Anime & Valorant</title>
   <style>
     * {
       margin: 0;
@@ -21,7 +21,7 @@
       padding: 1rem;
     }
 
-    .game-container {
+    .container {
       background: white;
       border-radius: 16px;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
@@ -30,25 +30,56 @@
       overflow: hidden;
     }
 
-    .game-header {
+    .header {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
       padding: 2rem;
       text-align: center;
     }
 
-    .game-header h1 {
+    .header h1 {
       font-size: 32px;
       margin-bottom: 0.5rem;
     }
 
-    .game-header p {
+    .header p {
       opacity: 0.9;
       font-size: 14px;
     }
 
-    .game-content {
+    .content {
       padding: 2rem;
+    }
+
+    .menu {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .menu-btn {
+      padding: 1.5rem;
+      border: 2px solid #667eea;
+      background: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.2s;
+      color: #667eea;
+    }
+
+    .menu-btn:hover {
+      background: #667eea;
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    .game-container {
+      display: none;
+    }
+
+    .game-container.active {
+      display: block;
     }
 
     .progress-bar {
@@ -129,6 +160,16 @@
       font-weight: 600;
     }
 
+    .skin-image {
+      width: 100%;
+      max-height: 300px;
+      object-fit: contain;
+      margin-bottom: 1.5rem;
+      border-radius: 8px;
+      background: #f0f0f0;
+      padding: 1rem;
+    }
+
     .guess-input {
       width: 100%;
       padding: 12px 1rem;
@@ -171,10 +212,6 @@
     .submit-btn:hover {
       transform: translateY(-2px);
       box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
-    }
-
-    .submit-btn:active {
-      transform: translateY(0);
     }
 
     .skip-btn {
@@ -254,12 +291,24 @@
       margin: 0.5rem 0;
     }
 
+    .back-btn {
+      background: #f0f0f0;
+      color: #666;
+      border: 1px solid #ddd;
+      width: 100%;
+      margin-top: 1rem;
+    }
+
+    .back-btn:hover {
+      background: #e8e8e8;
+    }
+
     @media (max-width: 600px) {
-      .game-header h1 {
+      .header h1 {
         font-size: 24px;
       }
 
-      .game-content {
+      .content {
         padding: 1.5rem;
       }
 
@@ -271,224 +320,127 @@
 </head>
 <body>
 
-<div class="game-container">
-  <div class="game-header">
-    <h1>🎬 Anime Guess Master</h1>
-    <p>How many can you identify?</p>
+<div class="container">
+  <div class="header">
+    <h1>🎮 Guess Master</h1>
+    <p>Choose your game mode</p>
   </div>
 
-  <div class="game-content" id="gameContent"></div>
+  <div class="content" id="mainContent"></div>
 </div>
 
 <script>
-const questions = [
-  {
-    clues: ["Supernatural detective series", "Notebook grants death powers", "Strategic mind games"],
-    answer: "Death Note"
-  },
-  {
-    clues: ["Giant humanoid creatures attack humanity", "Scout Regiment fights back", "Founder's identity is a mystery"],
-    answer: "Attack on Titan"
-  },
-  {
-    clues: ["Pirate adventure across the Grand Line", "Straw Hat crew seeks treasure", "Rubbery protagonist"],
-    answer: "One Piece"
-  },
-  {
-    clues: ["Ninja academy in Hidden Leaf Village", "Ninja with nine-tailed fox power", "Orange-loving protagonist"],
-    answer: "Naruto"
-  },
-  {
-    clues: ["Demon slayer organization", "Sister turns into demon", "Sword breathing techniques"],
-    answer: "Demon Slayer"
-  },
-  {
-    clues: ["High school battle royale", "Students gain superpowers", "Society separates by quirk"],
-    answer: "My Hero Academia"
-  },
-  {
-    clues: ["Alchemy breaks laws of equivalent exchange", "Two brothers search for Philosopher's Stone", "Automail prosthetics"],
-    answer: "Fullmetal Alchemist"
-  },
-  {
-    clues: ["Psychic school for gifted students", "Protagonist hides his true power", "Grade: B Class"],
-    answer: "Mob Psycho 100"
-  },
-  {
-    clues: ["Battle through mazes of floors", "VR multiplayer reality becomes real", "300 levels to clear"],
-    answer: "Sword Art Online"
-  },
-  {
-    clues: ["Titan hunter with special weapons", "Magical girls fight monsters", "Slice of life meets action"],
-    answer: "Puella Magi Madoka Magica"
-  },
-  {
-    clues: ["Underground gourmet food hunter", "Appetite demons terrorize world", "Rating scale from 1-100"],
-    answer: "Toriko"
-  },
-  {
-    clues: ["Soul collecting shinigami", "Death God runs ramen shop", "Humans and afterlife collide"],
-    answer: "Hell Girl"
-  },
-  {
-    clues: ["Time travel and conspiracy", "Microwave sends texts to the past", "CERN laboratory involvement"],
-    answer: "Steins;Gate"
-  },
-  {
-    clues: ["Space western bounty hunters", "Ragtag crew on a ship", "Jazz soundtrack in space"],
-    answer: "Cowboy Bebop"
-  },
-  {
-    clues: ["Geass power grants mind control", "Rebellion against occupation", "Mecha warfare"],
-    answer: "Code Geass"
-  },
-  {
-    clues: ["Soul reapers and spirit society", "Substitute shinigami protects town", "Bankai transformation power"],
-    answer: "Bleach"
-  },
-  {
-    clues: ["Cursed jujutsu sorcerers", "Finger fragments grant power", "Sukuna lives inside protagonist"],
-    answer: "Jujutsu Kaisen"
-  },
-  {
-    clues: ["Spy family goes undercover", "Telepathic daughter predicts future", "Assassin falls in love"],
-    answer: "Spy x Family"
-  },
-  {
-    clues: ["Chainsaw man contracts with demons", "Chaotic hybrid transformation", "Fiends and devils fight"],
-    answer: "Chainsaw Man"
-  },
-  {
-    clues: ["Fire Force fights infernals", "Spontaneous human combustion crisis", "Special fire brigade battles"],
-    answer: "Fire Force"
-  },
-  {
-    clues: ["Romantic comedy with tsundere", "High school love struggles", "Hachiman protagonist"],
-    answer: "My Teen Romantic Comedy SNAFU"
-  },
-  {
-    clues: ["Four girls go on adventure", "Antarctica exploration journey", "Coming of age story"],
-    answer: "A Place Further Than the Universe"
-  },
-  {
-    clues: ["Time travel meets romance", "Your name is our connection", "Comet brings disaster"],
-    answer: "Your Name"
-  },
-  {
-    clues: ["Cursed sword with ghost warrior", "Swordsman seeks redemption", "Wanderer travels Japan"],
-    answer: "Rurouni Kenshin"
-  },
-  {
-    clues: ["Vampire siblings hide identity", "School romance and adventure", "Cross Academy setting"],
-    answer: "Vampire Knight"
-  },
-  {
-    clues: ["Ultimate kaiju battle royale", "Seventeen god-level monsters", "Humans fight for survival"],
-    answer: "Monster Musume"
-  },
-  {
-    clues: ["Cursed parasite takes over body", "Shinichi and Migi merge", "Aliens infiltrate Earth"],
-    answer: "Parasyte"
-  },
-  {
-    clues: ["Tokyo ghoul cannibals emerge", "Kaneki becomes half-ghoul", "Underground supernatural society"],
-    answer: "Tokyo Ghoul"
-  },
-  {
-    clues: ["Psychological crime thriller", "Sibyl System judges humanity", "Enforcer vs Inspector"],
-    answer: "Psycho-Pass"
-  },
-  {
-    clues: ["Reincarnated as slime", "Builds empire from nothing", "Powerful monster protagonist"],
-    answer: "That Time I Got Reincarnated as a Slime"
-  },
-  {
-    clues: ["Swordsman finds goddess", "Dungeon crawling adventure", "Bell Cranel's journey"],
-    answer: "Is It Wrong to Try to Pick Up Girls in a Dungeon?"
-  },
-  {
-    clues: ["Monster fighting tournament", "Gon seeks his father", "Nen power system battles"],
-    answer: "Hunter x Hunter"
-  },
-  {
-    clues: ["Skeleton mage builds undead army", "Overlord of dark forces", "Nazarick guildhall dominion"],
-    answer: "Overlord"
-  },
-  {
-    clues: ["Isekai with multiple timelines", "Return to past to save friends", "Rem falls in love"],
-    answer: "Re:Zero"
-  },
-  {
-    clues: ["Game world with guilds", "Elder Tale becomes reality", "Round Table Council rules"],
-    answer: "Log Horizon"
-  },
-  {
-    clues: ["Slice of life about angst", "Red panda office worker", "Brutal venting sessions"],
-    answer: "Aggretsuko"
-  },
-  {
-    clues: ["Sports anime about volleyball", "Karasuno High School team", "Haikyu matches tournament"],
-    answer: "Haikyu!!"
-  },
-  {
-    clues: ["Cooking competition series", "Food eater Soma's journey", "Culinary battles and flavors"],
-    answer: "Food Wars!"
-  },
-  {
-    clues: ["Orphans escape promised land", "Demon farm revelation twist", "Emma leads escape plan"],
-    answer: "The Promised Neverland"
-  },
-  {
-    clues: ["Demon regeneration immortality", "Berserk swordsman protagonist", "Dark fantasy setting"],
-    answer: "Berserk"
-  },
-  {
-    clues: ["Vampire hunter exploration", "Dracula's castle adventure", "Retro-inspired animation"],
-    answer: "Castlevania"
-  },
-  {
-    clues: ["Demon boy transformation power", "Ryo's dark secret exposed", "Tragic betrayal ending"],
-    answer: "Devilman Crybaby"
-  },
-  {
-    clues: ["Mecha giant robot battles", "Spiral energy power source", "Humanity's final hope"],
-    answer: "Tengen Toppa Gurren Lagann"
-  },
-  {
-    clues: ["Viking seafarer Thorfinn", "Revenge saga redemption arc", "Historical Nordic setting"],
-    answer: "Vinland Saga"
-  },
-  {
-    clues: ["Superhero academia grades", "Deku dreams of becoming hero", "All Might's successor"],
-    answer: "My Hero Academia"
-  },
-  {
-    clues: ["Level up in fantasy dungeon", "Sung Jinwoo awakens power", "Dungeon gate catastrophe"],
-    answer: "Solo Leveling"
-  },
-  {
-    clues: ["Bizarre adventure across generations", "Stand powers and poses", "Jojo Joestar legacy"],
-    answer: "JoJo's Bizarre Adventure"
-  },
-  {
-    clues: ["Monster detective mystery", "Johan becomes primary suspect", "Psychological thriller"],
-    answer: "Monster"
-  },
-  {
-    clues: ["Pink haired android girl", "Emotional journey and connection", "Biomechanical being learns love"],
-    answer: "Planetarian"
-  },
-  {
-    clues: ["Music production and romance", "Carole and Tuesday perform", "Mars colony setting"],
-    answer: "Carole & Tuesday"
-  }
+const animeQuestions = [
+  { clues: ["Supernatural detective series", "Notebook grants death powers", "Strategic mind games"], answer: "Death Note" },
+  { clues: ["Giant humanoid creatures attack humanity", "Scout Regiment fights back", "Founder's identity is a mystery"], answer: "Attack on Titan" },
+  { clues: ["Pirate adventure across the Grand Line", "Straw Hat crew seeks treasure", "Rubbery protagonist"], answer: "One Piece" },
+  { clues: ["Ninja academy in Hidden Leaf Village", "Ninja with nine-tailed fox power", "Orange-loving protagonist"], answer: "Naruto" },
+  { clues: ["Demon slayer organization", "Sister turns into demon", "Sword breathing techniques"], answer: "Demon Slayer" },
+  { clues: ["High school battle royale", "Students gain superpowers", "Society separates by quirk"], answer: "My Hero Academia" },
+  { clues: ["Alchemy breaks laws of equivalent exchange", "Two brothers search for Philosopher's Stone", "Automail prosthetics"], answer: "Fullmetal Alchemist" },
+  { clues: ["Psychic school for gifted students", "Protagonist hides his true power", "Grade: B Class"], answer: "Mob Psycho 100" },
+  { clues: ["Battle through mazes of floors", "VR multiplayer reality becomes real", "300 levels to clear"], answer: "Sword Art Online" },
+  { clues: ["Titan hunter with special weapons", "Magical girls fight monsters", "Slice of life meets action"], answer: "Puella Magi Madoka Magica" },
+  { clues: ["Underground gourmet food hunter", "Appetite demons terrorize world", "Rating scale from 1-100"], answer: "Toriko" },
+  { clues: ["Soul collecting shinigami", "Death God runs ramen shop", "Humans and afterlife collide"], answer: "Hell Girl" },
+  { clues: ["Time travel and conspiracy", "Microwave sends texts to the past", "CERN laboratory involvement"], answer: "Steins;Gate" },
+  { clues: ["Space western bounty hunters", "Ragtag crew on a ship", "Jazz soundtrack in space"], answer: "Cowboy Bebop" },
+  { clues: ["Geass power grants mind control", "Rebellion against occupation", "Mecha warfare"], answer: "Code Geass" },
+  { clues: ["Soul reapers and spirit society", "Substitute shinigami protects town", "Bankai transformation power"], answer: "Bleach" },
+  { clues: ["Cursed jujutsu sorcerers", "Finger fragments grant power", "Sukuna lives inside protagonist"], answer: "Jujutsu Kaisen" },
+  { clues: ["Spy family goes undercover", "Telepathic daughter predicts future", "Assassin falls in love"], answer: "Spy x Family" },
+  { clues: ["Chainsaw man contracts with demons", "Chaotic hybrid transformation", "Fiends and devils fight"], answer: "Chainsaw Man" },
+  { clues: ["Fire Force fights infernals", "Spontaneous human combustion crisis", "Special fire brigade battles"], answer: "Fire Force" },
+  { clues: ["Romantic comedy with tsundere", "High school love struggles", "Hachiman protagonist"], answer: "My Teen Romantic Comedy SNAFU" },
+  { clues: ["Four girls go on adventure", "Antarctica exploration journey", "Coming of age story"], answer: "A Place Further Than the Universe" },
+  { clues: ["Time travel meets romance", "Your name is our connection", "Comet brings disaster"], answer: "Your Name" },
+  { clues: ["Cursed sword with ghost warrior", "Swordsman seeks redemption", "Wanderer travels Japan"], answer: "Rurouni Kenshin" },
+  { clues: ["Vampire siblings hide identity", "School romance and adventure", "Cross Academy setting"], answer: "Vampire Knight" },
+  { clues: ["Cursed parasite takes over body", "Shinichi and Migi merge", "Aliens infiltrate Earth"], answer: "Parasyte" },
+  { clues: ["Tokyo ghoul cannibals emerge", "Kaneki becomes half-ghoul", "Underground supernatural society"], answer: "Tokyo Ghoul" },
+  { clues: ["Psychological crime thriller", "Sibyl System judges humanity", "Enforcer vs Inspector"], answer: "Psycho-Pass" },
+  { clues: ["Reincarnated as slime", "Builds empire from nothing", "Powerful monster protagonist"], answer: "That Time I Got Reincarnated as a Slime" },
+  { clues: ["Swordsman finds goddess", "Dungeon crawling adventure", "Bell Cranel's journey"], answer: "Is It Wrong to Try to Pick Up Girls in a Dungeon?" },
+  { clues: ["Monster fighting tournament", "Gon seeks his father", "Nen power system battles"], answer: "Hunter x Hunter" },
+  { clues: ["Skeleton mage builds undead army", "Overlord of dark forces", "Nazarick guildhall dominion"], answer: "Overlord" },
+  { clues: ["Isekai with multiple timelines", "Return to past to save friends", "Rem falls in love"], answer: "Re:Zero" },
+  { clues: ["Game world with guilds", "Elder Tale becomes reality", "Round Table Council rules"], answer: "Log Horizon" },
+  { clues: ["Slice of life about angst", "Red panda office worker", "Brutal venting sessions"], answer: "Aggretsuko" },
+  { clues: ["Sports anime about volleyball", "Karasuno High School team", "Haikyu matches tournament"], answer: "Haikyu!!" },
+  { clues: ["Cooking competition series", "Food eater Soma's journey", "Culinary battles and flavors"], answer: "Food Wars!" },
+  { clues: ["Orphans escape promised land", "Demon farm revelation twist", "Emma leads escape plan"], answer: "The Promised Neverland" },
+  { clues: ["Demon regeneration immortality", "Berserk swordsman protagonist", "Dark fantasy setting"], answer: "Berserk" },
+  { clues: ["Vampire hunter exploration", "Dracula's castle adventure", "Retro-inspired animation"], answer: "Castlevania" },
+  { clues: ["Demon boy transformation power", "Ryo's dark secret exposed", "Tragic betrayal ending"], answer: "Devilman Crybaby" },
+  { clues: ["Mecha giant robot battles", "Spiral energy power source", "Humanity's final hope"], answer: "Tengen Toppa Gurren Lagann" },
+  { clues: ["Viking seafarer Thorfinn", "Revenge saga redemption arc", "Historical Nordic setting"], answer: "Vinland Saga" },
+  { clues: ["Level up in fantasy dungeon", "Sung Jinwoo awakens power", "Dungeon gate catastrophe"], answer: "Solo Leveling" },
+  { clues: ["Bizarre adventure across generations", "Stand powers and poses", "Jojo Joestar legacy"], answer: "JoJo's Bizarre Adventure" },
+  { clues: ["Monster detective mystery", "Johan becomes primary suspect", "Psychological thriller"], answer: "Monster" },
+  { clues: ["Music production and romance", "Carole and Tuesday perform", "Mars colony setting"], answer: "Carole & Tuesday" },
+  { clues: ["School harem comedy", "Summer festival romance", "Tsundere love interest"], answer: "Toradora!" },
+  { clues: ["Magical girl transformation power", "Battle against dark forces", "Sailor Moon's adventure"], answer: "Sailor Moon" },
+  { clues: ["Elf archer fantasy quest", "Guild adventures and battles", "Sword and sorcery setting"], answer: "Goblin Slayer" },
+  { clues: ["Zombie survival post-apocalypse", "Undead human girl Mitsuri", "Gruesome horror action"], answer: "Highschool of the Dead" },
 ];
 
+const valorantSkins = [
+  { name: "Prime Vandal", image: "https://api.kyush.me/valorant/weapon-skins?search=Prime&category=Vandal", rarity: 5 },
+  { name: "Prime Phantom", image: "https://api.kyush.me/valorant/weapon-skins?search=Prime&category=Phantom", rarity: 5 },
+  { name: "Reaver Vandal", image: "https://api.kyush.me/valorant/weapon-skins?search=Reaver&category=Vandal", rarity: 5 },
+  { name: "Reaver Operator", image: "https://api.kyush.me/valorant/weapon-skins?search=Reaver&category=Operator", rarity: 5 },
+  { name: "Elderflame Dragon Vandal", image: "https://api.kyush.me/valorant/weapon-skins?search=Elderflame&category=Vandal", rarity: 5 },
+  { name: "Elderflame Dragon Operator", image: "https://api.kyush.me/valorant/weapon-skins?search=Elderflame&category=Operator", rarity: 5 },
+  { name: "Sentinels of Light Sheriff", image: "https://api.kyush.me/valorant/weapon-skins?search=Sentinels", rarity: 4 },
+  { name: "Kingdom Vandal", image: "https://api.kyush.me/valorant/weapon-skins?search=Kingdom&category=Vandal", rarity: 4 },
+  { name: "Sovereign Operator", image: "https://api.kyush.me/valorant/weapon-skins?search=Sovereign&category=Operator", rarity: 4 },
+  { name: "Protocol G3 Phantom", image: "https://api.kyush.me/valorant/weapon-skins?search=Protocol&category=Phantom", rarity: 4 },
+  { name: "Radianite Phantom", image: "https://api.kyush.me/valorant/weapon-skins?search=Radianite&category=Phantom", rarity: 3 },
+  { name: "Spectrum Vandal", image: "https://api.kyush.me/valorant/weapon-skins?search=Spectrum&category=Vandal", rarity: 3 },
+  { name: "Chronovoid Operator", image: "https://api.kyush.me/valorant/weapon-skins?search=Chronovoid&category=Operator", rarity: 3 },
+  { name: "BlastX Vandal", image: "https://api.kyush.me/valorant/weapon-skins?search=BlastX&category=Vandal", rarity: 3 },
+  { name: "Dogma Phantom", image: "https://api.kyush.me/valorant/weapon-skins?search=Dogma&category=Phantom", rarity: 3 },
+  { name: "Pistol Prime Sheriff", image: "https://api.kyush.me/valorant/weapon-skins?search=Prime&category=Sheriff", rarity: 4 },
+  { name: "Phantom Vandal", image: "https://api.kyush.me/valorant/weapon-skins?search=Phantom&category=Vandal", rarity: 2 },
+  { name: "Classic Weapon Skin", image: "https://api.kyush.me/valorant/weapon-skins?search=Glitchpop&category=Classic", rarity: 3 },
+  { name: "Operator Elderflame", image: "https://api.kyush.me/valorant/weapon-skins?search=Elderflame&category=Operator", rarity: 5 },
+  { name: "Oni Phantom", image: "https://api.kyush.me/valorant/weapon-skins?search=Oni&category=Phantom", rarity: 4 },
+];
+
+let currentGame = null;
 let currentQuestion = 0;
 let score = 0;
+let questions = [];
+
+function showMenu() {
+  const content = document.getElementById('mainContent');
+  content.innerHTML = `
+    <div class="menu">
+      <button class="menu-btn" onclick="startGame('anime')">🎬 Anime Guessing Game</button>
+      <button class="menu-btn" onclick="startGame('valorant')">🎮 Valorant Skin Guessing</button>
+      <button class="menu-btn" onclick="startGame('mixed')">⚡ Mixed Mode (Both)</button>
+    </div>
+  `;
+}
+
+function startGame(gameType) {
+  currentGame = gameType;
+  currentQuestion = 0;
+  score = 0;
+
+  if (gameType === 'anime') {
+    questions = animeQuestions.sort(() => Math.random() - 0.5);
+  } else if (gameType === 'valorant') {
+    questions = valorantSkins.sort(() => (Math.random() - 0.5) * (Math.random() - 0.5)).slice(0, 20);
+  } else {
+    questions = [...animeQuestions.sort(() => Math.random() - 0.5).slice(0, 12), ...valorantSkins.sort(() => (Math.random() - 0.5) * (Math.random() - 0.5)).slice(0, 8)];
+  }
+
+  renderGame();
+}
 
 function renderGame() {
-  const content = document.getElementById('gameContent');
+  const content = document.getElementById('mainContent');
 
   if (currentQuestion >= questions.length) {
     renderGameOver();
@@ -497,6 +449,7 @@ function renderGame() {
 
   const q = questions[currentQuestion];
   const progress = ((currentQuestion) / questions.length) * 100;
+  const isValorant = q.image;
 
   content.innerHTML = `
     <div class="progress-bar">
@@ -515,21 +468,22 @@ function renderGame() {
     </div>
 
     <div class="question-card">
-      <div class="question-title">What anime is this?</div>
-      <div class="clues-section">
+      <div class="question-title">${isValorant ? 'What Valorant skin is this?' : 'What anime is this?'}</div>
+      ${isValorant ? `<img src="${q.image}" alt="Valorant skin" class="skin-image" onerror="this.style.display='none'">` : ''}
+      ${!isValorant ? `<div class="clues-section">
         ${q.clues.map((clue, i) => `<div class="clue"><strong>Clue ${i + 1}:</strong> ${clue}</div>`).join('')}
-      </div>
+      </div>` : ''}
 
       <input
         type="text"
         id="guessInput"
         class="guess-input"
-        placeholder="Enter anime title..."
+        placeholder="Enter name..."
         autocomplete="off"
       />
 
       <div class="button-group">
-        <button class="submit-btn" onclick="submitGuess()">Submit Guess</button>
+        <button class="submit-btn" onclick="submitGuess()">Submit</button>
         <button class="skip-btn" onclick="skipQuestion()">Skip</button>
       </div>
     </div>
@@ -549,9 +503,10 @@ function renderGame() {
 function submitGuess() {
   const input = document.getElementById('guessInput');
   const guess = input.value.trim().toLowerCase();
-  const correct = questions[currentQuestion].answer.toLowerCase();
+  const q = questions[currentQuestion];
+  const correct = q.answer.toLowerCase();
 
-  const content = document.getElementById('gameContent');
+  const content = document.getElementById('mainContent');
   const isCorrect = guess === correct;
 
   if (isCorrect) score++;
@@ -575,11 +530,11 @@ function submitGuess() {
 
     <div class="result-section ${isCorrect ? 'result-correct' : 'result-incorrect'}">
       <div class="result-title">${isCorrect ? '✓ Correct!' : '✗ Incorrect'}</div>
-      <div class="result-text"><strong>Answer:</strong> ${questions[currentQuestion].answer}</div>
+      <div class="result-text"><strong>Answer:</strong> ${q.answer}</div>
       ${!isCorrect ? `<div class="result-text"><strong>Your guess:</strong> "${input.value}"</div>` : ''}
     </div>
 
-    <button class="submit-btn" onclick="nextQuestion()" style="width: 100%; margin-top: 1rem;">Next Question →</button>
+    <button class="submit-btn" onclick="nextQuestion()" style="width: 100%; margin-top: 1rem;">Next →</button>
   `;
 
   content.innerHTML = resultHTML;
@@ -595,15 +550,15 @@ function nextQuestion() {
 }
 
 function renderGameOver() {
-  const content = document.getElementById('gameContent');
+  const content = document.getElementById('mainContent');
   const percentage = Math.round((score / questions.length) * 100);
 
   let message = '';
-  if (percentage === 100) message = '🏆 Perfect score! You\'re an anime master!';
-  else if (percentage >= 80) message = '🎯 Excellent work! You know your anime!';
-  else if (percentage >= 60) message = '👍 Great job! Time to watch more anime.';
-  else if (percentage >= 40) message = '😊 Not bad! Keep exploring!';
-  else message = '💪 Give it another try!';
+  if (percentage === 100) message = '🏆 Perfect score! You\'re a master!';
+  else if (percentage >= 80) message = '🎯 Excellent work!';
+  else if (percentage >= 60) message = '👍 Great job!';
+  else if (percentage >= 40) message = '😊 Not bad!';
+  else message = '💪 Try again!';
 
   content.innerHTML = `
     <div class="question-card game-over">
@@ -611,12 +566,12 @@ function renderGameOver() {
       <div class="final-score">${score} / ${questions.length}</div>
       <div class="percentage">${percentage}%</div>
       <div class="final-message">${message}</div>
-      <button class="submit-btn" onclick="location.reload()" style="width: 100%;">Play Again</button>
+      <button class="submit-btn" onclick="showMenu()" style="width: 100%;">Back to Menu</button>
     </div>
   `;
 }
 
-renderGame();
+showMenu();
 </script>
 
 </body>
